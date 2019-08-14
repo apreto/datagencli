@@ -4,13 +4,14 @@ A CLI (Command Line Interface) utility for generating data, based on Java Faker 
 
 License: MIT
 
-Building
+## Building
 
 *  mvn clean install
 
 Resulting (executable) jar file will be on target/datagencli-0.1-SNAPSHOT-jar-with-dependencies.jar
 
-Usage:
+## Usage 
+
 * List available fields (from Java Faker API)
   * java -jar datagencli.jar --listfields
 * Generate Data 
@@ -27,7 +28,7 @@ Available command line options
 * --separator=separator-string - char/string separating each field in each generated row/line
 * --header=header-line : header to add to output, before generating rows
 
-Examples:
+## Examples
 
 
 Example 1: 
@@ -36,9 +37,9 @@ Example 1:
 Generates 10Mb of CSV data with ';' as separator, a header and fields id, name, birthDate, address.
 
 Example 2:
-> java -jar datagencli.jar --rows=1000 --separator=, --fields='internet.uuid,commerce.productName,randomLong(10:1000),randomDouble(2:100:700),randomString(AA###??ZR)' --header='productId,name,itemsInStock,price,promotionCode' > products.csv
+> java -jar datagencli.jar --rows=1000 --separator=, --fields='internet.uuid,commerce.productName,randomLong(10:1000),randomDouble(2:150:700),randomString(AA###??ZR)' --header='productId,name,itemsInStock,price,promotionCode' > products.csv
 
-Generates 1000 rows of CSV data with header and fields id, productName, itemsInStock (random number between 10 and 1000), price (random double between 100 and 700 and 2 decimal places) and promotionCode (string starting with AA, 3 letters, 2 numbers and ending with ZR)
+Generates 1000 rows of CSV data with header and fields id, productName, itemsInStock (random number between 10 and 1000), price (random double between 150 and 700 and 2 decimal places) and promotionCode (string starting with AA, 3 letters, 2 numbers and ending with ZR)
 
 Example 3:
 > java -jar datagencli.jar --rows=5 --fields=superhero.name
