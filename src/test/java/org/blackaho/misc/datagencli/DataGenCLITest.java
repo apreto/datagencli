@@ -186,7 +186,7 @@ public class DataGenCLITest
 
     @Test
     public void testGetFieldValueForCustomRandomDouble() {
-        double result = Double.parseDouble(dataGenCLI.getFieldValue(faker,"randomDouble(1:10:3)"));
+        double result = Double.parseDouble(dataGenCLI.getFieldValue(faker,"randomDouble(2:1:10)"));
         assertTrue(result >= 1.0D && result <= 10.0D);
     }
 

@@ -1,4 +1,4 @@
-#DataGenCLI - Data Generator CLI 
+# DataGenCLI - Data Generator CLI 
 
 A CLI (Command Line Interface) utility for generating data, based on Java Faker library  - https://github.com/DiUS/java-faker
 
@@ -34,7 +34,7 @@ Examples:
 
 Generates 10Mb of CSV data with ';' as separator, a header and fields id, name, birthDate, address.
 
-> java -jar datagencli.jar --rows=1000 --separator=, --fields='internet.uuid,commerce.productName,randomLong(10:1000),randomDouble(100:700:2),randomString(AA###??ZR)' --header='productId,name,itemsInStock,price,promotionCode' > products.csv
+> java -jar datagencli.jar --rows=1000 --separator=, --fields='internet.uuid,commerce.productName,randomLong(10:1000),randomDouble(2:100:700),randomString(AA###??ZR)' --header='productId,name,itemsInStock,price,promotionCode' > products.csv
 
 Generates 1000 rows of CSV data with header and fields id, productName, itemsInStock (random number between 10 and 1000), price (random double between 100 and 700 and 2 decimal places) and promotionCode (string starting with AA, 3 letters, 2 numbers and ending with ZR)
 

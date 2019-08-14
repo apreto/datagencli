@@ -138,7 +138,7 @@ public class DataGenCLI {
         // add fields we have special handling, faker.number.numberBetween(min,max),faker.number.randomDouble(maxDecimals,min,max) and faker.bothify()
         results.add("randomString(bothifyFormatting)");
         results.add("randomLong(min,max)");
-        results.add("randomDouble(min,max,maxDecimals)");
+        results.add("randomDouble(maxDecimals,min,max)");
         getAvailableFieldsRecursive(fakerObject.getClass(), null, results, 6);
        return results;
     }
