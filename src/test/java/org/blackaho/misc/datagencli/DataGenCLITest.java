@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.github.javafaker.Faker;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +12,6 @@ import org.junit.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Unit tests for DataGenCli.
@@ -21,8 +19,7 @@ import java.util.List;
 public class DataGenCLITest
 {
 
-    DataGenCLI dataGenCLI;
-    Faker faker;
+    private DataGenCLI dataGenCLI;
 
     private final ByteArrayOutputStream systemOut = new ByteArrayOutputStream();
     private final ByteArrayOutputStream systemErr = new ByteArrayOutputStream();
@@ -32,7 +29,7 @@ public class DataGenCLITest
     @Before
     public void before() {
         dataGenCLI = new DataGenCLI();
-        faker = new Faker();
+        //faker = new Faker();
         System.setOut(new PrintStream(systemOut));
         System.setErr(new PrintStream(systemErr));
     }
@@ -153,78 +150,6 @@ public class DataGenCLITest
         assertFalse(dataGenCLI.checkOptions());
     }
 
-    // test get available fields
-
-    @Test
-    public void testGetAvailableFields() {
-        // joining a few distinct tests into one to avoid cost of recursion done by this method call
-        List<String> availableFields = dataGenCLI.getAvailableFields(faker);
-
-
-        // check if our custom fields are present (randomLong, randomString, randomDouble)
-        assertTrue(availableFields.stream().anyMatch(s -> s.startsWith("randomLong(")));
-        assertTrue(availableFields.stream().anyMatch(s -> s.startsWith("randomDouble(")));
-        assertTrue(availableFields.stream().anyMatch(s -> s.startsWith("randomString(")));
-
-        // check if we have a few well known classes of faker API
-        assertTrue(availableFields.stream().anyMatch(s -> s.startsWith("name.firstName")));
-        assertTrue(availableFields.stream().anyMatch(s -> s.startsWith("name.lastName")));
-        assertTrue(availableFields.stream().anyMatch(s -> s.startsWith("address.fullAddress")));
-        assertTrue(availableFields.stream().anyMatch(s -> s.startsWith("internet.emailAddress")));
-        assertTrue(availableFields.stream().anyMatch(s -> s.startsWith("lorem.sentence"))); // we love this one
-
-    }
-
-
-    // test getFieldValues - custom functions and faker API call
-
-    @Test
-    public void testGetFieldValueForCustomRandomLong() {
-        long result = Long.parseLong(dataGenCLI.getFieldValue(faker,"randomLong(1:10)"));
-        assertTrue(result >= 1 && result <= 10);
-    }
-
-    @Test
-    public void testGetFieldValueForCustomRandomDouble() {
-        double result = Double.parseDouble(dataGenCLI.getFieldValue(faker,"randomDouble(2:1:10)"));
-        assertTrue(result >= 1.0D && result <= 10.0D);
-    }
-
-    @Test
-    public void testGetFieldValueForCustomRandomString() {
-        String result = dataGenCLI.getFieldValue(faker,"randomString(aaa????bb###)"); // faker bothify -  4 chars (?), 3 numbers
-        assertTrue(result.matches("aaa[a-zA-Z]{4}bb[0-9]{3}"));
-    }
-
-    @Test
-    public void testGetFieldValueForFakerAPICall() {
-        String result = dataGenCLI.getFieldValue(faker,"name.fullName");
-        assertTrue(result.trim().length() > 0);
-    }
-
-    @Test
-    public void testGetFieldValueForInvalidCall() {
-        String result = dataGenCLI.getFieldValue(faker,"some.invalid.name");
-        assertTrue(result.equals(""));
-    }
-
-    // test generate Row Line (with separator in right places)
-
-    @Test
-    public void testGenerateRowLine() {
-        List<String> fields = Arrays.asList(new String[] {"randomLong(1:10)","randomString(###)","randomLong(10:20)"});
-        String result = dataGenCLI.generateRowLine(faker, ";", fields);
-        String[] resultCols = result.split(";");
-        // check if result has 3 rows separated by ";"
-        assertTrue(resultCols.length == 3);
-        // check if they are what we expected.
-        long col1  = Long.parseLong(resultCols[0]);
-        assertTrue(col1 >= 1 && col1 <= 10);
-        assertTrue(resultCols[1].matches("[0-9]{3}"));
-        long col3  = Long.parseLong(resultCols[2]);
-        assertTrue(col3 >= 10 && col3 <= 20);
-    }
-
 
     // test run method
 
@@ -252,10 +177,10 @@ public class DataGenCLITest
         dataGenCLI.header = "number;text";
         dataGenCLI.separator = ";";
         dataGenCLI.run();
-        String outputLines[] = systemOut.toString().split("\n");
-        assertTrue(outputLines.length == 2); // header\nline1\n
+        String[] outputLines = systemOut.toString().split("\n");
+        assertEquals(2, outputLines.length); // header\nline1\n
         assertEquals( "number;text", outputLines[0]); // first line is our header
-        assertTrue(outputLines[1].split(";").length == 2); // second line contains 2 fields separated by ;
+        assertEquals(2, outputLines[1].split(";").length); // second line contains 2 fields separated by ;
     }
 
     @Test
