@@ -7,9 +7,12 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.PrintStream;
 import java.util.Arrays;
 
@@ -26,12 +29,16 @@ public class DataGenCLITest
     private final PrintStream originalSystemOut = System.out;
     private final PrintStream originalSystemErr = System.err;
 
+    @Rule
+    public TemporaryFolder tmpFolder = new TemporaryFolder();
+
+
     @Before
     public void before() {
-        dataGenCLI = new DataGenCLI();
         //faker = new Faker();
         System.setOut(new PrintStream(systemOut));
         System.setErr(new PrintStream(systemErr));
+        dataGenCLI = new DataGenCLI();
     }
 
     @After
@@ -107,6 +114,27 @@ public class DataGenCLITest
         dataGenCLI.parseOptions(args);
         Object[] expected = new String[] {"name.firstName","name.lastName"};
         assertArrayEquals(dataGenCLI.fields.toArray(), expected);
+    }
+
+    @Test
+    public void testParseOptionsOutputFileName() {
+        String[] args = new String[] {"--out=file1"};
+        dataGenCLI.parseOptions(args);
+        assertEquals("file1", dataGenCLI.outputFilename);
+    }
+
+    @Test
+    public void testParseOptionsOutputFileNameWithWhiteSpaces() {
+        String[] args = new String[] {"--out=File Name With Spaces.csv"};
+        dataGenCLI.parseOptions(args);
+        assertEquals("File Name With Spaces.csv", dataGenCLI.outputFilename);
+    }
+
+    @Test
+    public void testParseOptionsOutputFileNameWithMiscChars() {
+        String[] args = new String[] {"--out=File Name With Misc $&%Çãé Chars.csv"};
+        dataGenCLI.parseOptions(args);
+        assertEquals("File Name With Misc $&%Çãé Chars.csv", dataGenCLI.outputFilename);
     }
 
     // test argument logic checking
@@ -220,6 +248,28 @@ public class DataGenCLITest
         assertTrue(systemOut.size() == 0);
         assertTrue(systemErr.toString().contains("Usage: "));
     }
+
+    @Test
+    public void testOutputFile() {
+        // test out we can write to a file
+        String outFileName = tmpFolder.getRoot().getAbsolutePath() + "/tmpFile1.csv";
+        String [] args = new String[] {"--rows=1", "--fields=name.firstName","--out="+outFileName};
+        dataGenCLI.main(args);
+        // check file exists
+        File outFile = new File(outFileName);
+        assertTrue(outFile.exists());
+        assertTrue( outFile.length() > 0 );
+    }
+
+    @Test
+    public void testOutputFileInvalidIsDirectory() throws Exception {
+      // test out if specifying an invalid path (e.g., a dir)we get expected err message
+      String outFileInvalid = tmpFolder.newFolder().getAbsolutePath();
+      String [] args = new String[] {"--rows=1", "--fields=name.firstName","--out="+outFileInvalid};
+      dataGenCLI.main(args);
+      assertTrue(systemErr.toString().contains("ERROR"));
+    }
+
 
 
 }
