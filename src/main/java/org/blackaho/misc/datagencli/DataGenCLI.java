@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
 /**
@@ -90,8 +89,8 @@ public class DataGenCLI {
 
     protected void runWithNumberOfRows() {
         if (header != null || headerLine != null) out.println(rowGenerator.generateHeaderLine());
-        IntStream.range(1,nRows+1).parallel().forEach( rowNum -> { // do in parallel
-            out.println(rowGenerator.generateRowLine());
+        LongStream.range(1L,nRows+1L).parallel().forEach( rowNum -> { // do in parallel
+            out.println(rowGenerator.generateRowLine(rowNum));
             if (rowNum%1000==0) out.flush(); // flush output every 1000 lines
         });
         out.flush();
@@ -101,13 +100,13 @@ public class DataGenCLI {
         // get a sample of 1000 rows get average size per line. then, use it to calc number of rows needed.
         // number of bytes will an approach, but we avoid having a sync/shared counter between threads
         long totalBytes = LongStream.range(0,1000).parallel()
-            .map( n -> rowGenerator.generateRowLine().getBytes().length+1 )
+            .map( n -> rowGenerator.generateRowLine(n).getBytes().length+1 )
             .reduce( (a,b) -> a+b ).getAsLong();
         long avgBytesPerRow = totalBytes/1000L;
         long rowsToGenerate = (nMbytes*1024L*1024L)/avgBytesPerRow;
         if (header != null || headerLine != null) out.println(rowGenerator.generateHeaderLine());
         LongStream.range(1, rowsToGenerate+1).parallel().forEach(rowNum -> {
-            out.println(rowGenerator.generateRowLine());
+            out.println(rowGenerator.generateRowLine(rowNum));
             if (rowNum%1000==0) out.flush();
         });
         out.flush();

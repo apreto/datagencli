@@ -46,34 +46,45 @@ public class FakerRowGeneratorTest {
 
 
   // test getFieldValue - custom functions and faker API call
+  @Test
+  public void testGetFieldValueForRowNumber() {
+    long result = (Long) rowGenerator.getFieldValue("rowNumber",123L);
+    assertEquals(123L, result);
+  }
+
+  @Test
+  public void testGetFieldValueForSequence() {
+    long result = (Long) rowGenerator.getFieldValue("sequence(10:3)",2L);
+    assertEquals(13L, result);
+  }
 
   @Test
   public void testGetFieldValueForCustomRandomLong() {
-    long result = (Long) rowGenerator.getFieldValue("randomLong(1:10)");
+    long result = (Long) rowGenerator.getFieldValue("randomLong(1:10)",1L);
     assertTrue(result >= 1 && result <= 10);
   }
 
   @Test
   public void testGetFieldValueForCustomRandomDouble() {
-    double result = (Double) rowGenerator.getFieldValue("randomDouble(2:1:10)");
+    double result = (Double) rowGenerator.getFieldValue("randomDouble(2:1:10)",1L);
     assertTrue(result >= 1.0D && result <= 10.0D);
   }
 
   @Test
   public void testGetFieldValueForCustomRandomString() {
-    String result = (String) rowGenerator.getFieldValue("randomString(aaa????bb###)"); // faker bothify -  4 chars (?), 3 numbers
+    String result = (String) rowGenerator.getFieldValue("randomString(aaa????bb###)",1L); // faker bothify -  4 chars (?), 3 numbers
     assertTrue(result.matches("aaa[a-zA-Z]{4}bb[0-9]{3}"));
   }
 
   @Test
   public void testGetFieldValueForFakerAPICall() {
-    String result = (String) rowGenerator.getFieldValue("name.fullName");
+    String result = (String) rowGenerator.getFieldValue("name.fullName",1L);
     assertTrue(result.trim().length() > 0);
   }
 
   @Test
   public void testGetFieldValueForInvalidCall() {
-    String result = (String) rowGenerator.getFieldValue("some.invalid.name");
+    String result = (String) rowGenerator.getFieldValue("some.invalid.name",1L);
     assertTrue(result.equals(""));
   }
 
@@ -83,7 +94,7 @@ public class FakerRowGeneratorTest {
   public void testGenerateRowLine() {
     List<String> fields = Arrays.asList(new String[] {"randomLong(1:10)","randomString(###)","randomLong(10:20)"});
     rowGenerator.setFieldsSeparator(";").setFields( fields );
-    String result = rowGenerator.generateRowLine();
+    String result = rowGenerator.generateRowLine(1L);
     String[] resultCols = result.split(";");
     // check if result has 3 columns separated by ";"
     assertTrue(resultCols.length == 3);
@@ -99,7 +110,7 @@ public class FakerRowGeneratorTest {
   public void testGenerateRow() {
     List<String> fields = Arrays.asList(new String[] {"randomLong(1:10)","randomString(###)","randomLong(10:20)"});
     rowGenerator.setFieldsSeparator(";").setFields( fields );
-    List result = rowGenerator.generateRow();
+    List result = rowGenerator.generateRow(1L);
     // check if result has 3 columns
     assertTrue(result.size() == 3);
     // check if they are what we expected.

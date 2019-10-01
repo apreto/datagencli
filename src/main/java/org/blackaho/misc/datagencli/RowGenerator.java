@@ -47,7 +47,7 @@ public interface RowGenerator {
    * Generates a row, according to fields definition set with setFieds()
    * @return List of objects (column) values according to fields definition set with setFields()
    */
-  List generateRow();
+  List generateRow(Long lineNumber);
 
   /**
    * Generate a header line, according to header definition set with setHeader()
@@ -59,5 +59,5 @@ public interface RowGenerator {
    * Generates a row in string (line) format, according to fields definition set with setFieds()
    * @return
    */
-  String generateRowLine();
+  String generateRowLine(Long lineNumber);
 }
