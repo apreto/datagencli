@@ -25,17 +25,18 @@ Available command line options
 * --fields=fields-list : comma separated list of fields to generate (see available fields with --listfields)  
 * --rows=number-of-rows : number of rows (lines) to generate. Cannot be used in conjunction with --mbs.
 * --mbs=number-of-megabytes : (approximate) number of Megabytes of data to generate. Cannot be used in conjunction with --rows
-* --separator=separator-string - char/string separating each field in each generated row/line
-* --header=header-line : header to add to output, before generating rows
+* --separator=separator-string : char/string separating each field in each generated row/line
+* --header=fields-name-list : comma separated list of column names, written as header to output before generating rows. Option --headerline takes precedence over this
+* --headerline=header-line : header line to add to output, before generating rows. This option takes precedence over --header
 * --out=myfile.csv : writes output to specified file instead of console 
 
 ## Examples
 
 
 Example 1: 
-> java -jar datagencli.jar --mbs=10 --separator=\; --fields=internet.uuid,name.fullName,date.birthDate,address.fullAddress --header='id;name;birthDate;address' > customers.csv
+> java -jar datagencli.jar --mbs=10 --separator=\; --fields=internet.uuid,name.fullName,date.birthDate,address.fullAddress --header='id,name,birthDate,address' > customers.csv
 
-Generates 10Mb of CSV data with ';' as separator, a header and fields id, name, birthDate, address.
+Generates 10Mb of CSV data with ';' as separator, add a header with column names for each field (id, name, birthDate, address).
 
 Example 2:
 > java -jar datagencli.jar --rows=1000 --separator=, --fields='internet.uuid,commerce.productName,randomLong(10:1000),randomDouble(2:150:700),randomString(AA###??ZR)' --header='productId,name,itemsInStock,price,promotionCode' --out=products.csv

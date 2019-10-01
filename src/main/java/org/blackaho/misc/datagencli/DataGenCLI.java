@@ -23,9 +23,11 @@ public class DataGenCLI {
     static final String OPTION_SEPARATOR = "--separator=";
     static final String OPTION_FIELDS = "--fields=";
     static final String OPTION_HEADER = "--header=";
+    static final String OPTION_HEADERLINE = "--headerline=";
     static final String OPTION_OUT = "--out=";
-    static final String USAGE = "Usage: java -jar datagencli.jar --listfields | [--rows=<number of rows to gen>] [-mbs=<megabytes to gen>] "
-        + "--separator=<fields separator char> --header=<header line to gen> --fields=<comma separated list of fields to gen> "
+    static final String USAGE = "Usage: java -jar datagencli.jar [ --listfields | --rows=<number of rows to gen> | --mbs=<megabytes to gen> ] "
+        + "[ --header=<comma separated list of field names>  | --headerline=<header line to generate> ] "
+        + "--separator=<fields separator char> --fields=<comma separated list of fields to gen> "
         + "--out=<output filename>";
 
     // fields set with options
@@ -33,7 +35,8 @@ public class DataGenCLI {
     int nRows = 0;
     int nMbytes = 0;
     String separator = ",";
-    String header = null;
+    String headerLine = null;
+    List<String> header = null;
     String outputFilename = null;
     List<String> fields = new ArrayList<>();
 
@@ -57,7 +60,8 @@ public class DataGenCLI {
         rowGenerator = RowGeneratorFactory.createDefaultRowGenerator()
             .setFields(fields)
             .setFieldsSeparator(separator)
-            .setHeader(header);
+            .setHeader(header)
+            .setHeaderLine(headerLine);
 
         boolean closeOutAtEnd = false;
         // sets output to a specific file, instead of console
@@ -85,7 +89,7 @@ public class DataGenCLI {
     }
 
     protected void runWithNumberOfRows() {
-        if (header != null) out.println(rowGenerator.generateHeaderLine());
+        if (header != null || headerLine != null) out.println(rowGenerator.generateHeaderLine());
         IntStream.range(1,nRows+1).parallel().forEach( rowNum -> { // do in parallel
             out.println(rowGenerator.generateRowLine());
             if (rowNum%1000==0) out.flush(); // flush output every 1000 lines
@@ -101,7 +105,7 @@ public class DataGenCLI {
             .reduce( (a,b) -> a+b ).getAsLong();
         long avgBytesPerRow = totalBytes/1000L;
         long rowsToGenerate = (nMbytes*1024L*1024L)/avgBytesPerRow;
-        if (header != null) out.println(rowGenerator.generateHeaderLine());
+        if (header != null || headerLine != null) out.println(rowGenerator.generateHeaderLine());
         LongStream.range(1, rowsToGenerate+1).parallel().forEach(rowNum -> {
             out.println(rowGenerator.generateRowLine());
             if (rowNum%1000==0) out.flush();
@@ -128,18 +132,24 @@ public class DataGenCLI {
                 nMbytes = Integer.parseInt(arg.substring(OPTION_NMBYTES.length(), arg.length()));
             } else if (arg.startsWith(OPTION_SEPARATOR)) {
                 separator = arg.substring(OPTION_SEPARATOR.length(), arg.length());
-            } else if (arg.startsWith(OPTION_HEADER)) {
-                header = arg.substring(OPTION_HEADER.length(), arg.length());
+            } else if (arg.startsWith(OPTION_HEADERLINE)) {
+                headerLine = arg.substring(OPTION_HEADERLINE.length(), arg.length());
             } else if (arg.startsWith(OPTION_OUT)) {
                 outputFilename = arg.substring(OPTION_OUT.length(), arg.length());
             } else if (arg.startsWith(OPTION_FIELDS)) {
-                fields = Arrays.asList(arg.substring(OPTION_FIELDS.length(), arg.length()).split(","))
-                    .stream()
-                    .map(String::trim)
-                    .filter(s -> !s.isEmpty())
-                    .collect(Collectors.toList());
+                fields = parseCSVStringAsList(arg.substring(OPTION_FIELDS.length(), arg.length()));
+            } else if (arg.startsWith(OPTION_HEADER)) {
+                header = parseCSVStringAsList(arg.substring(OPTION_HEADER.length(), arg.length()));
             }
         }
+    }
+
+    protected List<String> parseCSVStringAsList(String csvStr) {
+        return Arrays.asList(csvStr.split(","))
+            .stream()
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .collect(Collectors.toList());
     }
 
     public boolean checkOptions() {
@@ -152,6 +162,10 @@ public class DataGenCLI {
             err.println(USAGE);
             return false;
         } else if (fields.isEmpty() || (nRows == 0 && nMbytes == 0)) {
+            err.println(USAGE);
+            return false;
+        } else if (headerLine==null && header!=null && (fields.size()!=header.size())) {
+            err.println("ERROR: Number of fields on --fields different than on --header");
             err.println(USAGE);
             return false;
         }

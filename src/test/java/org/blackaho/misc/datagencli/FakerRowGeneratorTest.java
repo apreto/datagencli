@@ -113,12 +113,21 @@ public class FakerRowGeneratorTest {
   }
 
   @Test
-  public void testGenerateHeader() {
-    String header = "col1,col2,col3";
+  public void testGenerateHeaderLineWithHeader() {
+    List<String> header = Arrays.asList( new String[] {"col1","col2","col3"});
     rowGenerator.setHeader(header);
-    assertEquals(header, rowGenerator.generateHeaderLine());
+    rowGenerator.setFieldsSeparator(";");
+    assertEquals("col1;col2;col3", rowGenerator.generateHeaderLine());
   }
 
+  @Test
+  public void testGenerateHeaderLineWithHeaderLine() {
+    String header = "col1,col2,col3";
+    rowGenerator.setHeaderLine(header);
+    rowGenerator.setFieldsSeparator(";"); // checks if separator is ignored
+    rowGenerator.setHeader(Arrays.asList(new String[] {"col5,col6"})); // check header is ignored when using headerLine
+    assertEquals(header, rowGenerator.generateHeaderLine());
+  }
 
 
 

@@ -86,18 +86,27 @@ public class DataGenCLITest
     }
 
     @Test
-    public void testParseOptionsFieldsWithHeader() {
+    public void testParseOptionsHeaderLine() {
+        String[] args = new String[] {"--headerline=firstName;lastName","--separator=,"};
+        dataGenCLI.parseOptions(args);
+        assertEquals("firstName;lastName", dataGenCLI.headerLine);
+    }
+
+    @Test
+    public void testParseOptionsHeaderWithList() {
         String[] args = new String[] {"--header=firstName,lastName"};
         dataGenCLI.parseOptions(args);
-        assertEquals("firstName,lastName", dataGenCLI.header);
+        Object[] expected = new String[] {"firstName","lastName"};
+        assertArrayEquals(expected, dataGenCLI.header.toArray());
     }
+
 
     @Test
     public void testParseOptionsFieldsWithList() {
         String[] args = new String[] {"--fields=name.firstName,name.lastName"};
         dataGenCLI.parseOptions(args);
         Object[] expected = new String[] {"name.firstName","name.lastName"};
-        assertArrayEquals(dataGenCLI.fields.toArray(), expected);
+        assertArrayEquals(expected, dataGenCLI.fields.toArray());
     }
 
     @Test
@@ -105,7 +114,7 @@ public class DataGenCLITest
         String[] args = new String[] {"--fields=name.firstName"};
         dataGenCLI.parseOptions(args);
         Object[] expected = new String[] {"name.firstName"};
-        assertArrayEquals(dataGenCLI.fields.toArray(), expected);
+        assertArrayEquals(expected, dataGenCLI.fields.toArray());
     }
 
     @Test
@@ -113,7 +122,7 @@ public class DataGenCLITest
         String[] args = new String[] {"--fields= name.firstName , name.lastName , ,"};
         dataGenCLI.parseOptions(args);
         Object[] expected = new String[] {"name.firstName","name.lastName"};
-        assertArrayEquals(dataGenCLI.fields.toArray(), expected);
+        assertArrayEquals(expected, dataGenCLI.fields.toArray());
     }
 
     @Test
@@ -160,6 +169,15 @@ public class DataGenCLITest
     }
 
     @Test
+    public void testCheckArgumentsValidUsingRowsAndFieldsAndHeader() {
+        dataGenCLI.nRows = 1;
+        dataGenCLI.fields = Arrays.asList(new String[] {"name.firstName"});
+        dataGenCLI.header = Arrays.asList(new String[] {"firstName"});
+        assertTrue(dataGenCLI.checkOptions());
+    }
+
+
+    @Test
     public void testCheckArgumentsInvalidMissingRowsOrNMbytes() {
         dataGenCLI.fields = Arrays.asList(new String[] {"name.firstName"});
         assertFalse(dataGenCLI.checkOptions());
@@ -178,6 +196,14 @@ public class DataGenCLITest
         assertFalse(dataGenCLI.checkOptions());
     }
 
+    @Test
+    public void testCheckArgumentsInvalidUsingRowsAndFieldsAndHeader() {
+        // check different num. of itens on fields and header is invalid.
+        dataGenCLI.nRows = 1;
+        dataGenCLI.fields = Arrays.asList(new String[] {"name.firstName","name.lastName"});
+        dataGenCLI.header = Arrays.asList(new String[] {"firstName"});
+        assertFalse(dataGenCLI.checkOptions());
+    }
 
     // test run method
 
@@ -202,7 +228,7 @@ public class DataGenCLITest
     public void testRunWithRowsCount() {
         dataGenCLI.nRows = 1;
         dataGenCLI.fields = Arrays.asList(new String[] {"randomLong(1:10)","randomString(???)" }) ;
-        dataGenCLI.header = "number;text";
+        dataGenCLI.headerLine = "number;text";
         dataGenCLI.separator = ";";
         dataGenCLI.run();
         String[] outputLines = systemOut.toString().split("\n");
@@ -215,7 +241,7 @@ public class DataGenCLITest
     public void testRunWithMBytesCount() {
         dataGenCLI.nMbytes = 1;
         dataGenCLI.fields = Arrays.asList(new String[] {"lorem.sentence" }) ;
-        dataGenCLI.header = "text";
+        dataGenCLI.headerLine = "text";
         dataGenCLI.separator = ";";
         dataGenCLI.run(); // generates 1Mb of data
         // let's just check it generates more than 1Mb but less than 2Mb of data;

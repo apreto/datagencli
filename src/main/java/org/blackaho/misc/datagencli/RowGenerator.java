@@ -14,12 +14,20 @@ public interface RowGenerator {
   List<String> getAvailableFields();
 
   /**
-   * Sets header, used on generateHeaderLine(), usually a list of column names
-   * Note: This may change in future to accept a List<String> of column names
+   * Sets header, used on generateHeaderLine(), a list of column names
    * @param header
    * @return this object, to help on construction
    */
-  RowGenerator setHeader(String header);
+  RowGenerator setHeader(List<String> header);
+
+  /**
+   * Sets the string returned by generateHeaderLine(), used instead of setHeader() to allow specify specific
+   * formatting to this header line (e.g., adding some generation date/time, etc)
+   * @param header
+   * @return this object, to help on construction
+   */
+  RowGenerator setHeaderLine(String header);
+
 
   /**
    * Sets the fields definition RowGenerator will use to generate rows

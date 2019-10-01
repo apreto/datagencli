@@ -21,7 +21,8 @@ public class FakerRowGenerator implements RowGenerator {
 
   protected Faker faker;
   protected List<String> fields;
-  protected String header;
+  protected List<String> header;
+  protected String headerLine;
   protected String separator;
   protected  HashMap<String,RowGeneratorMetaEntry> rowGeneratorCache;
 
@@ -77,11 +78,17 @@ public class FakerRowGenerator implements RowGenerator {
 
 
   @Override
-  public RowGenerator setHeader(String header) {
-    // review set header contract - should accept a list of column names ?
+  public RowGenerator setHeaderLine(String headerLine) {
+    this.headerLine = headerLine;
+    return this;
+  }
+
+  @Override
+  public RowGenerator setHeader(List<String> header) {
     this.header = header;
     return this;
   }
+
 
   @Override
   public RowGenerator setFields(List<String> fields) {
@@ -98,8 +105,11 @@ public class FakerRowGenerator implements RowGenerator {
 
   @Override
   public String generateHeaderLine() {
-    // review this method - return a list of columns names separated by separator char ?
-    return this.header;
+    if (this.headerLine!=null) {
+      return this.headerLine;
+    } else {
+      return header.stream().reduce( (c1,c2) -> c1+this.separator+c2 ).orElse("");
+    }
   }
 
   @Override
