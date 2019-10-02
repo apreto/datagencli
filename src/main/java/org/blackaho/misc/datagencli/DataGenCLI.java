@@ -24,10 +24,12 @@ public class DataGenCLI {
     static final String OPTION_HEADER = "--header=";
     static final String OPTION_HEADERLINE = "--headerline=";
     static final String OPTION_OUT = "--out=";
+    static final String OPTION_SLEEP = "--sleep=";
+
     static final String USAGE = "Usage: java -jar datagencli.jar [ --listfields | --rows=<number of rows to gen> | --mbs=<megabytes to gen> ] "
         + "[ --header=<comma separated list of field names>  | --headerline=<header line to generate> ] "
         + "--separator=<fields separator char> --fields=<comma separated list of fields to gen> "
-        + "--out=<output filename>";
+        + "--sleep=<milisecs to sleep after generating each row> --out=<output filename>";
 
     // fields set with options
     boolean listFieldsOnly = false;
@@ -38,6 +40,7 @@ public class DataGenCLI {
     List<String> header = null;
     String outputFilename = null;
     List<String> fields = new ArrayList<>();
+    long sleepInMilisecs = 0;
 
     // vars needed for run()
     private PrintWriter err = new PrintWriter(System.err,true); //NOSONAR - we really want to write to stderr
@@ -88,12 +91,7 @@ public class DataGenCLI {
     }
 
     protected void runWithNumberOfRows() {
-        if (header != null || headerLine != null) out.println(rowGenerator.generateHeaderLine());
-        LongStream.range(1L,nRows+1L).parallel().forEach( rowNum -> { // do in parallel
-            out.println(rowGenerator.generateRowLine(rowNum));
-            if (rowNum%1000==0) out.flush(); // flush output every 1000 lines
-        });
-        out.flush();
+        runWithNumberOfRows(nRows);
     }
 
     protected void runWithNumberOfMegabytes() {
@@ -104,10 +102,22 @@ public class DataGenCLI {
             .reduce( (a,b) -> a+b ).getAsLong();
         long avgBytesPerRow = totalBytes/1000L;
         long rowsToGenerate = (nMbytes*1024L*1024L)/avgBytesPerRow;
+        runWithNumberOfRows(rowsToGenerate);
+    }
+
+    protected void runWithNumberOfRows(long numberOfRowsToGenerate) {
         if (header != null || headerLine != null) out.println(rowGenerator.generateHeaderLine());
-        LongStream.range(1, rowsToGenerate+1).parallel().forEach(rowNum -> {
+        LongStream.range(1L,numberOfRowsToGenerate+1L).parallel().forEach( rowNum -> { // do in parallel
             out.println(rowGenerator.generateRowLine(rowNum));
-            if (rowNum%1000==0) out.flush();
+            if (rowNum%1000==0) out.flush(); // flush output every 1000 lines
+            try {
+                if (sleepInMilisecs > 0) {
+                    out.flush(); // with sleep, we flush every line
+                    Thread.sleep(sleepInMilisecs);
+                }
+            } catch (Exception ex) {
+                // just get back to our life
+            }
         });
         out.flush();
     }
@@ -139,6 +149,8 @@ public class DataGenCLI {
                 fields = parseCSVStringAsList(arg.substring(OPTION_FIELDS.length(), arg.length()));
             } else if (arg.startsWith(OPTION_HEADER)) {
                 header = parseCSVStringAsList(arg.substring(OPTION_HEADER.length(), arg.length()));
+            } else if (arg.startsWith(OPTION_SLEEP)) {
+                sleepInMilisecs = Long.parseLong(arg.substring(OPTION_SLEEP.length(), arg.length()));
             }
         }
     }
@@ -165,6 +177,10 @@ public class DataGenCLI {
             return false;
         } else if (headerLine==null && header!=null && (fields.size()!=header.size())) {
             err.println("ERROR: Number of fields on --fields different than on --header");
+            err.println(USAGE);
+            return false;
+        } else if (nRows < 0 || nMbytes < 0 || sleepInMilisecs < 0) {
+            err.println("ERROR: Either --rows, --mbs or --sleep have negative or invalid values");
             err.println(USAGE);
             return false;
         }

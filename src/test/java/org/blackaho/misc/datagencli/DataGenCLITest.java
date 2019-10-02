@@ -146,6 +146,14 @@ public class DataGenCLITest
         assertEquals("File Name With Misc $&%Çãé Chars.csv", dataGenCLI.outputFilename);
     }
 
+  @Test
+  public void testParseOptionsSleep() {
+    String[] args = new String[] {"--sleep=10"};
+    dataGenCLI.parseOptions(args);
+    assertEquals(10, dataGenCLI.sleepInMilisecs);
+  }
+
+
     // test argument logic checking
 
     @Test
@@ -205,6 +213,28 @@ public class DataGenCLITest
         assertFalse(dataGenCLI.checkOptions());
     }
 
+    @Test
+    public void testCheckArgumentsSleepNegative() {
+      dataGenCLI.sleepInMilisecs = -1;
+      dataGenCLI.nRows = 1;
+      dataGenCLI.fields = Arrays.asList(new String[] {"firstname"});
+      assertFalse(dataGenCLI.checkOptions());
+    }
+
+  @Test
+  public void testCheckArgumentsNRowsNegative() {
+    dataGenCLI.nRows = -1;
+    dataGenCLI.fields = Arrays.asList(new String[] {"firstname"});
+    assertFalse(dataGenCLI.checkOptions());
+  }
+
+  @Test
+  public void testCheckArgumentsMbsNegative() {
+    dataGenCLI.nMbytes = -1;
+    dataGenCLI.fields = Arrays.asList(new String[] {"firstname"});
+    assertFalse(dataGenCLI.checkOptions());
+  }
+
     // test run method
 
     @Test
@@ -249,6 +279,20 @@ public class DataGenCLITest
         assertTrue(outSizeInBytes >= 1*1024*1024 &&  outSizeInBytes < 2*1024*1024);
     }
 
+  @Test
+  public void testRunWithRowsCountAndSleep() {
+    dataGenCLI.nRows = 1;
+    dataGenCLI.fields = Arrays.asList(new String[] {"randomLong(1:10)","randomString(???)" }) ;
+    dataGenCLI.headerLine = "number;text";
+    dataGenCLI.separator = ";";
+    dataGenCLI.sleepInMilisecs = 50L;
+    long startTime = System.currentTimeMillis();
+    dataGenCLI.run();
+    long runTime = System.currentTimeMillis() - startTime;
+    String[] outputLines = systemOut.toString().split("\n");
+    assertEquals(2, outputLines.length); // header\nline1\n
+    assertTrue(runTime >= 50L);
+  }
 
 
     @Test

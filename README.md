@@ -28,6 +28,7 @@ Available command line options
 * --separator=separator-string : char/string separating each field in each generated row/line
 * --header=fields-name-list : comma separated list of column names, written as header to output before generating rows. Option --headerline takes precedence over this
 * --headerline=header-line : header line to add to output, before generating rows. This option takes precedence over --header
+* --sleep=num-of-milisecs : sleeps N miliseconds after generating each row, on each thread. To control number of threads run java with java -Djava.util.concurrent.ForkJoinPool.common.parallelism=0 -jar datagencli.jar ...
 * --out=myfile.csv : writes output to specified file instead of console 
 
 ## Examples
@@ -48,3 +49,7 @@ Example 3:
 
 Generate 5 random superhero names (you never know when you will need it)
 
+Example 4:
+> java -Djava.util.concurrent.ForkJoinPool.common.parallelism=0 -jar datagencli.jar --fields=yoda.quote --rows=1000 --sleep=5000
+
+Generates a Master Yoda quote every 5 seconds (up to 1000 quotes) and writes to console. Useful for using unix pipes to send this to other command (e.g., kafka-console-producer.sh)
