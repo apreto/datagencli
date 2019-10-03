@@ -269,14 +269,14 @@ public class DataGenCLITest
 
     @Test
     public void testRunWithMBytesCount() {
-        dataGenCLI.nMbytes = 1;
+        dataGenCLI.nMbytes = 2;
         dataGenCLI.fields = Arrays.asList(new String[] {"lorem.sentence" }) ;
         dataGenCLI.headerLine = "text";
         dataGenCLI.separator = ";";
-        dataGenCLI.run(); // generates 1Mb of data
-        // let's just check it generates more than 1Mb but less than 2Mb of data;
+        dataGenCLI.run(); // generates 2Mb of data
+        // its average, so let's just check it generates more than 1Mb and less than 3Mb of data;
         int outSizeInBytes = systemOut.size();
-        assertTrue(outSizeInBytes >= 1*1024*1024 &&  outSizeInBytes < 2*1024*1024);
+        assertTrue(outSizeInBytes >= 1*1024*1024 &&  outSizeInBytes < 3*1024*1024);
     }
 
   @Test

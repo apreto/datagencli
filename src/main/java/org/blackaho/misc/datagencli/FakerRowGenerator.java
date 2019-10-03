@@ -111,7 +111,7 @@ public class FakerRowGenerator implements RowGenerator {
     if (this.headerLine!=null) {
       return this.headerLine;
     } else {
-      return header.stream().reduce( (c1,c2) -> c1+this.separator+c2 ).orElse("");
+      return header.stream().collect(Collectors.joining(this.separator));
     }
   }
 
