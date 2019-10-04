@@ -45,48 +45,57 @@ public class FakerRowGeneratorTest {
   }
 
 
-  // test getFieldValue - custom functions and faker API call
+  // test distinct field types - custom functions and faker API call
+
   @Test
-  public void testGetFieldValueForRowNumber() {
-    long result = (Long) rowGenerator.getFieldValue("rowNumber",123L);
+  public void testGenerateRowWithFieldRowNumber() {
+    rowGenerator.setFields(Arrays.asList("rowNumber"));
+    long result = (Long) rowGenerator.generateRow(123L).get(0);
     assertEquals(123L, result);
   }
 
   @Test
-  public void testGetFieldValueForSequence() {
-    long result = (Long) rowGenerator.getFieldValue("sequence(10:3)",2L);
+  public void testGenerateRowWithFieldSequence() {
+    rowGenerator.setFields(Arrays.asList("sequence(10:3)"));
+    long result = (Long) rowGenerator.generateRow(2L).get(0);
     assertEquals(13L, result);
   }
 
   @Test
-  public void testGetFieldValueForCustomRandomLong() {
-    long result = (Long) rowGenerator.getFieldValue("randomLong(1:10)",1L);
+  public void testGenerateRowWithFieldRandomLong() {
+    rowGenerator.setFields(Arrays.asList("randomLong(1:10)"));
+    long result = (Long) rowGenerator.generateRow(1L).get(0);
     assertTrue(result >= 1 && result <= 10);
   }
 
   @Test
-  public void testGetFieldValueForCustomRandomDouble() {
-    double result = (Double) rowGenerator.getFieldValue("randomDouble(2:1:10)",1L);
+  public void testGenerateRowWithFieldRandomDouble() {
+    rowGenerator.setFields(Arrays.asList("randomDouble(2:1:10)"));
+    double result = (Double) rowGenerator.generateRow(1L).get(0);
     assertTrue(result >= 1.0D && result <= 10.0D);
   }
 
   @Test
-  public void testGetFieldValueForCustomRandomString() {
-    String result = (String) rowGenerator.getFieldValue("randomString(aaa????bb###)",1L); // faker bothify -  4 chars (?), 3 numbers
+  public void testGenerateRowWithFieldRandomString() {
+    rowGenerator.setFields(Arrays.asList("randomString(aaa????bb###)"));    // faker bothify -  4 chars (?), 3 numbers
+    String result = (String) rowGenerator.generateRow(1L).get(0);
     assertTrue(result.matches("aaa[a-zA-Z]{4}bb[0-9]{3}"));
   }
 
   @Test
-  public void testGetFieldValueForFakerAPICall() {
-    String result = (String) rowGenerator.getFieldValue("name.fullName",1L);
+  public void testGenerateRowWithFieldMappedToFakerAPICall() {
+    rowGenerator.setFields(Arrays.asList("name.fullName"));
+    String result = (String) rowGenerator.generateRow(1L).get(0);
     assertTrue(result.trim().length() > 0);
   }
 
   @Test
-  public void testGetFieldValueForInvalidCall() {
-    String result = (String) rowGenerator.getFieldValue("some.invalid.name",1L);
-    assertTrue(result.equals(""));
+  public void testGenerateRowWithFieldUnknown() {
+    rowGenerator.setFields(Arrays.asList("some.unknown.name"));
+    String result = (String) rowGenerator.generateRow(1L).get(0);
+    assertTrue(result.equals("")); // current behavior is not error out, return "" and continue generating other fields
   }
+
 
   // test generate Row Line (with separator in right places)
 
