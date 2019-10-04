@@ -8,7 +8,7 @@ License: MIT
 
 *  mvn clean install
 
-Resulting (executable) jar file will be on target/datagencli-0.1-SNAPSHOT-jar-with-dependencies.jar
+Resulting (executable) jar file will be on target/datagencli-0.2-jar-with-dependencies.jar
 
 ## Usage 
 

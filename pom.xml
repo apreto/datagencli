@@ -6,7 +6,7 @@
 
   <groupId>org.blackaho.misc.datagencli</groupId>
   <artifactId>datagencli</artifactId>
-  <version>0.2-SNAPSHOT</version>
+  <version>0.2</version>
 
   <name>datagencli</name>
   <url>https://github.com/apreto/datagencli</url>
