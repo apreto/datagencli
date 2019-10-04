@@ -4,6 +4,12 @@ A CLI (Command Line Interface) utility for generating data, based on Java Faker 
 
 License: MIT
 
+Last release: https://github.com/apreto/datagencli/releases/latest
+
+Binary/Executable: https://github.com/apreto/datagencli/releases/download/v0.2/datagencli-0.2.jar 
+(executable jar file, ready to use, built from last release)
+
+
 ## Building
 
 *  mvn clean install
@@ -52,4 +58,4 @@ Generate 5 random superhero names (you never know when you will need it)
 Example 4:
 > java -Djava.util.concurrent.ForkJoinPool.common.parallelism=0 -jar datagencli.jar --fields=yoda.quote --rows=1000 --sleep=5000
 
-Generates a Master Yoda quote every 5 seconds (up to 1000 quotes) and writes to console. Useful for using unix pipes to send this to other command (e.g., kafka-console-producer.sh)
+Generates a Master Yoda quote every 5 seconds (up to 1000 quotes) and writes to console. Useful for using unix pipes to send this to other command (e.g., kafka-console-producer.sh).
