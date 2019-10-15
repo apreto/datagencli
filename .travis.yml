@@ -1,5 +1,9 @@
 language: java
 sudo: false
-script: mvn clean test
 notifications:
     webhooks: https://www.travisbuddy.com/
+addons:
+  sonarcloud:
+    organization: "apreto"
+script:
+  - mvn clean test sonar:sonar -Pcoverage -Dsonar.projectKey=apreto_datagencli
