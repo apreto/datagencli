@@ -83,6 +83,14 @@ public class FakerRowGeneratorTest {
   }
 
   @Test
+  public void testGenerateRowWithFieldRandomStringUsingSpecialChars() {
+    rowGenerator.setFields(Arrays.asList("randomString(a?-b #.+%:#@z&/\\[]=$;)"));
+    String result = (String) rowGenerator.generateRow(1L).get(0);
+    assertTrue(result.matches("a[a-zA-Z]-b\\s[0-9]\\.\\+%:[0-9]@z&/\\\\\\[\\]=\\$;"));
+  }
+
+
+  @Test
   public void testGenerateRowWithFieldMappedToFakerAPICall() {
     rowGenerator.setFields(Arrays.asList("name.fullName"));
     String result = (String) rowGenerator.generateRow(1L).get(0);

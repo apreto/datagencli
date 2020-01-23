@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  * Implements a RowGenerator based on JFaker. Following fields are supported:
  *  - rowNumber - maps directly to rowNumber passed to this class when generating row
  *  - sequence(start:increment) - sequence based on rowNumber
- *  - randomString(bothifyFormatting) - maps to Faker.bothify(fmt)
+ *  - randomString(bothifyFormatting) - maps to Faker.bothify(fmt), allows space and following special chars: .+%:-@&=$*;/\[]
  *  - randomLong(min:max) - maps to Faker.number().numberBetween(min,max)
  *  - randomDouble(maxDecimals:min:max) - maps to Faker.number.randomDouble(maxDecimals,min,max)
  *  - name.firstName - maps to Faker.name().firstName()
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class FakerRowGenerator implements RowGenerator {
 
   // special/custom functions
-  protected static final Pattern RANDOMSTRING_REGEXP = Pattern.compile("randomString\\(([\\w\\#\\?]*)\\)");
+  protected static final Pattern RANDOMSTRING_REGEXP = Pattern.compile("randomString\\(([\\w\\#\\?\\s\\.\\+%:\\-@&/\\\\\\[\\]=\\$;]*)\\)");
   protected static final Pattern RANDOMLONGFUNC_REGEXP = Pattern.compile("randomLong\\((\\d+):(\\d+)\\)");
   protected static final Pattern RANDOMDOUBLEFUNC_REGEXP = Pattern.compile("randomDouble\\((\\d+):(\\d+):(\\d+)\\)"); //"randomDouble\\((\\d+):(\\d+\\.?\\d*):(\\d+\\.?\\d*)\\)"
   protected static final Pattern SEQUENCEFUNC_REGEXP = Pattern.compile("sequence\\((\\d+):(\\d+)\\)");
