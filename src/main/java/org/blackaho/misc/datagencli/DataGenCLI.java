@@ -43,9 +43,9 @@ public class DataGenCLI {
   long sleepInMilisecs = 0;
 
   // vars needed for run()
-  private PrintWriter err = new PrintWriter(System.err,true); //NOSONAR - we really want to write to stderr
-  private PrintWriter out = new PrintWriter(System.out); //NOSONAR - we really want to write to stdout, buffered
-  private RowGenerator rowGenerator = null;
+  protected PrintWriter err = new PrintWriter(System.err,true); //NOSONAR - we really want to write to stderr
+  protected PrintWriter out = new PrintWriter(System.out); //NOSONAR - we really want to write to stdout, buffered
+  protected RowGenerator rowGenerator = null;
 
 
   public static void main(String[] args) {
@@ -58,6 +58,19 @@ public class DataGenCLI {
   }
 
 
+  /**
+   * If applicable, sets output to specific file instead of console.
+   * @return true if file was created for output, false case not.
+   */
+  protected boolean prepareOutputFile() throws FileNotFoundException {
+    if (outputFilename!=null) {
+      out = new PrintWriter(new FileOutputStream(outputFilename));
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   public void run() {
     rowGenerator = RowGeneratorFactory.createDefaultRowGenerator()
         .setFields(fields)
@@ -66,12 +79,8 @@ public class DataGenCLI {
         .setHeaderLine(headerLine);
 
     boolean closeOutAtEnd = false;
-    // sets output to a specific file, instead of console
     try {
-      if (outputFilename != null) {
-        out = new PrintWriter(new FileOutputStream(outputFilename));
-        closeOutAtEnd = true;
-      }
+      closeOutAtEnd = prepareOutputFile(); // if applicable sets output to a specific file, instead of console.
     } catch (FileNotFoundException ex) {
       err.println("ERROR opening output file "+outputFilename + ", stop processing.");
       return;
